@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی MineSweeper 💣</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="main-menu" class="game-screen active">
+        <h1>میدان مین 💣</h1>
+        <div class="difficulty-buttons">
+            <button id="easy-btn" class="btn">آسان</button>
+            <button id="medium-btn" class="btn">متوسط</button>
+            <button id="hard-btn" class="btn">سخت</button>
+        </div>
+    </div>
+
+    <div id="game-board-screen" class="game-screen">
+        <div class="game-info">
+            <div id="mines-left" class="info-box">🚩 مین‌های باقی‌مانده: <span id="mine-count">0</span></div>
+            <div id="timer" class="info-box">⏱️ زمان: <span id="time-elapsed">00:00</span></div>
+        </div>
+        <div id="board-container" class="board-container">
+            </div>
+        <div>
+            <h2 id="final-result"></h2>
+
+        </div>
+        <button id="reset-btn" class="btn reset-btn">شروع مجدد 🔄</button>
+    </div>
+
+    <div id="lose-screen" class="game-screen">
+        <h2>بوم! 💥 مین منفجر شد!</h2>
+        <p>متاسفانه باختی.</p>
+        <button id="play-again-lose-btn" class="btn">دوباره بازی کن 🤔</button>
+    </div>
+
+    <div id="win-screen" class="game-screen">
+        <h2>تبریک! 🎉 همه مین‌ها رو پیدا کردی!</h2>
+        <p>تو برنده شدی!</p>
+        <button id="play-again-win-btn" class="btn">دوباره بازی کن 🥳</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -73,34 +73,37 @@ function prepareToStart() {
       });
 
       cell.addEventListener("click", function () {
-        cell.classList.remove("flagged");
-        cell.classList.add("revealed");
-        cell.flagged = true;
-        console.log(cell.id);
-
-        if (bombs.includes(Number(cell.id))) {
-          //console.log("bomb here");
+        if (cell.flagged == false) {
           cell.classList.remove("flagged");
-          cell.classList.add("exploded-mine");
+          cell.classList.add("revealed");
           cell.flagged = true;
-          revealBombs();
-          document.getElementById("final-result").textContent =
-            "بوم! 💥 مین منفجر شد!...  باختی!";
-        } else {
-          revealedCnt += 1;
-          if (revealedCnt === rows * colums - bombsCount) {
-            console.log("you won");
+          console.log(cell.id);
+
+          if (bombs.includes(Number(cell.id))) {
+            //console.log("bomb here");
+            cell.classList.remove("flagged");
+            cell.classList.add("exploded-mine");
+            cell.flagged = true;
             revealBombs();
             document.getElementById("final-result").textContent =
-              "تبریک! 🎉 همه مین‌ها رو پیدا کردی!";
+              "بوم! 💥 مین منفجر شد!...  باختی!";
+          } else {
+            revealedCnt += 1;
+
+            if (revealedCnt === rows * colums - bombsCount) {
+              console.log("you won");
+              revealBombs();
+              document.getElementById("final-result").textContent =
+                "تبریک! 🎉 همه مین‌ها رو پیدا کردی!";
+            }
+            const bombsAround = recBombs(
+              Number(cell.id),
+              Number(cell.scolum),
+              Number(cell.srow)
+            );
+            cell.textContent = bombsAround;
+            cell.classList.add(`number-${bombsAround}`);
           }
-          const bombsAround = recBombs(
-            Number(cell.id),
-            Number(cell.scolum),
-            Number(cell.srow)
-          );
-          cell.textContent = bombsAround;
-          cell.classList.add(`number-${bombsAround}`);
         }
       });
     }
@@ -122,7 +125,6 @@ function recBombs(id, scolum, srow) {
     [1, -1],
     [-1, 1],
   ];
-  const front = [scolum + locmakers[0][0], srow + locmakers[0][1]];
 
   for (let item of locmakers) {
     let newBlockLocation = [scolum + item[0], srow + item[1]];
@@ -145,6 +147,7 @@ function recBombs(id, scolum, srow) {
   //console.log(`fianl cnt is = ${cnt}`)
   return cnt;
 }
+
 
 function picbombsCount() {
   bombs = [];
