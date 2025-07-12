@@ -7,7 +7,9 @@ let rows;
 let bombsCount;
 let bombs = [];
 let blockId = 1;
-let allCells = []
+let allCells = [];
+let flagCount = 0;
+let revealedCnt = 0;
 
 for (let item of difficultyBtns) {
   document.getElementById(item).addEventListener("click", function () {
@@ -25,15 +27,19 @@ for (let item of difficultyBtns) {
       bombsCount = 99;
     }
     prepareToStart();
-    
   });
 }
 
 function prepareToStart() {
   blockId = 1;
   bombs = [];
-  boardContainer.innerHTML = '';
+  boardContainer.innerHTML = "";
+  allCells = [];
   picbombsCount();
+  flagCount = 0;
+  revealedCnt = 0;
+
+  document.getElementById("mines-left").textContent = bombsCount - flagCount;
   document.getElementById("main-menu").classList.remove("active");
   boardContainer.style.gridTemplateColumns = `repeat(${colums}, 1fr)`;
   boardContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
@@ -47,54 +53,97 @@ function prepareToStart() {
       cell.scolum = col + 1;
       cell.id = blockId;
       blockId += 1;
+      cell.flagged = false;
 
-      cell.addEventListener("click", function () { 
+      cell.addEventListener("contextmenu", function (e) {
+        event.preventDefault();
+        if (cell.flagged == false && flagCount < bombsCount) {
+          cell.classList.add("flagged");
+          cell.flagged = true;
+          flagCount += 1;
+          //console.log(e);
+        } else if (cell.flagged == true) {
+          cell.classList.remove("flagged");
+          cell.flagged = false;
+          flagCount -= 1;
+          //console.log(e);
+        }
+        document.getElementById("mines-left").textContent =
+          bombsCount - flagCount;
+      });
+
+      cell.addEventListener("click", function () {
+        cell.classList.remove("flagged");
         cell.classList.add("revealed");
+        cell.flagged = true;
         console.log(cell.id);
 
         if (bombs.includes(Number(cell.id))) {
-          console.log("bomb here");
+          //console.log("bomb here");
+          cell.classList.remove("flagged");
           cell.classList.add("exploded-mine");
+          cell.flagged = true;
           revealBombs();
+          document.getElementById("final-result").textContent =
+            "بوم! 💥 مین منفجر شد!...  باختی!";
         } else {
-            const bombsAround = recBombs(Number(cell.id), Number(cell.scolum), Number(cell.srow));
-            cell.textContent = bombsAround;
-            cell.classList.add(`number-${bombsAround}`); 
-          
+          revealedCnt += 1;
+          if (revealedCnt === rows * colums - bombsCount) {
+            console.log("you won");
+            revealBombs();
+            document.getElementById("final-result").textContent =
+              "تبریک! 🎉 همه مین‌ها رو پیدا کردی!";
+          }
+          const bombsAround = recBombs(
+            Number(cell.id),
+            Number(cell.scolum),
+            Number(cell.srow)
+          );
+          cell.textContent = bombsAround;
+          cell.classList.add(`number-${bombsAround}`);
         }
       });
     }
-    
   }
-  allCells = document.querySelectorAll(".cell"); 
+  allCells = document.querySelectorAll(".cell");
   document.getElementById("game-board-screen").classList.add("active");
 }
 
 function recBombs(id, scolum, srow) {
-  console.log(`id = ${id} scolum = ${scolum} srow = ${srow}`)
+  //console.log(`id = ${id} scolum = ${scolum} srow = ${srow}`)
   let cnt = 0;
   let locmakers = [
-    [0, 1], [1, 0], [-1, 0], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]
-    ]
-   const front = [scolum + locmakers[0][0], srow + locmakers[0][1]]
+    [0, 1],
+    [1, 0],
+    [-1, 0],
+    [0, -1],
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+  ];
+  const front = [scolum + locmakers[0][0], srow + locmakers[0][1]];
 
-   for(let item of locmakers){
-    let newBlockLocation = [scolum + item[0], srow + item[1]]
+  for (let item of locmakers) {
+    let newBlockLocation = [scolum + item[0], srow + item[1]];
     let newBlockid;
-    for(let cell of allCells){
-      if(cell.scolum == newBlockLocation[0] && cell.srow == newBlockLocation[1]){
-        console.log(`nighbers: id = ${cell.id}`)
-        newBlockid = Number(cell.id)
-      } 
+    for (let cell of allCells) {
+      if (
+        cell.scolum == newBlockLocation[0] &&
+        cell.srow == newBlockLocation[1]
+      ) {
+        //console.log(`nighbers: id = ${cell.id}`)
+        newBlockid = Number(cell.id);
+      }
     }
-    if(bombs.includes(newBlockid)){
-        console.log(`${newBlockid} is bomb`)
-        cnt += 1
-        console.log(cnt)
+    if (bombs.includes(newBlockid)) {
+      //console.log(`${newBlockid} is bomb`)
+      cnt += 1;
+      //.log(cnt)
     }
-   }
-   console.log(`fianl cnt is = ${cnt}`)
-   return cnt
+  }
+  //console.log(`fianl cnt is = ${cnt}`)
+  return cnt;
 }
 
 function picbombsCount() {
@@ -110,24 +159,28 @@ function picbombsCount() {
 }
 
 function revealBombs() {
-  console.log("you lost");
+  //console.log("you lost");
   for (let item of allCells) {
     if (bombs.includes(Number(item.id))) {
       item.classList.add("mine");
+      item.classList.add("revealed");
     }
   }
-  document.getElementById('lose-screen').classList.add('active');
 }
 
 function restart() {
-  boardContainer.innerHTML = '';
-  document.getElementById('lose-screen').classList.remove('active');
-  document.getElementById('game-board-screen').classList.remove('active');
+  boardContainer.innerHTML = "";
+  document.getElementById("lose-screen").classList.remove("active");
+  document.getElementById("game-board-screen").classList.remove("active");
   document.getElementById("win-screen").classList.remove("active");
 
   document.getElementById("main-menu").classList.add("active");
 }
 
-document.getElementById('play-again-win-btn').addEventListener('click', restart);
-document.getElementById('play-again-lose-btn').addEventListener('click', restart);
-document.getElementById('reset-btn').addEventListener('click', restart);
+document
+  .getElementById("play-again-win-btn")
+  .addEventListener("click", restart);
+document
+  .getElementById("play-again-lose-btn")
+  .addEventListener("click", restart);
+document.getElementById("reset-btn").addEventListener("click", restart);
